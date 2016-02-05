@@ -3,24 +3,30 @@ from mpi4py import MPI
 def distr_filter(d, f):
 	comm = MPI.COMM_WORLD
 	rank = comm.Get_rank()
-
-	data = []
-
-	if rank == 0:
-		data = d
+	size = comm.Get_size()
 
 	#Scatter
-	data = comm.scatter(data, root=0)
-	data = f(data)
-
-	data = comm.gather(data, root=0)
+	data = comm.scatter(d, root=0)
+	print("Scattered")
+	if f(data):
+		comm.send(True, dest=0, tag=1)
+		print("Sent true from " + str(rank))
+	else:
+		comm.send(False, dest=0, tag=0)
+		print("Sent false from " + str(rank))
 
 	comm.Barrier()
 
 	if rank == 0:
-		print(data)
+		filtered_data = []
+		for i in range(0, size):
+			filt = comm.recv(source=i)
+			if filt:
+				filtered_data.append(d[i])
+			print("Received data from " + str(i))
+		print(filtered_data)
 
 def example_function(i):
-	return i * 2
+	return i % 2 == 1
 
-distr_filter([1, 2, 3, 4, 5], example_function)
+distr_filter([2, 2, 3, 4, 5], example_function)
