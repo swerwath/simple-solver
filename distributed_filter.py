@@ -7,13 +7,10 @@ def distr_filter(d, f):
 
 	#Scatter
 	data = comm.scatter(d, root=0)
-	print("Scattered")
 	if f(data):
 		comm.send(True, dest=0, tag=1)
-		print("Sent true from " + str(rank))
 	else:
 		comm.send(False, dest=0, tag=0)
-		print("Sent false from " + str(rank))
 
 	comm.Barrier()
 
@@ -23,10 +20,11 @@ def distr_filter(d, f):
 			filt = comm.recv(source=i)
 			if filt:
 				filtered_data.append(d[i])
-			print("Received data from " + str(i))
 		print(filtered_data)
 
 def example_function(i):
 	return i % 2 == 1
 
-distr_filter([2, 2, 3, 4, 5], example_function)
+# Execution begins here
+example_data = [1, 2, 3, 4, 5]
+distr_filter(example_data, example_function)
