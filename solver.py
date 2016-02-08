@@ -64,7 +64,7 @@ class ExampleGame:
 	def gen_moves(pos):
 		if pos == 1:
 			return [-1]
-		elif pos == 2 or pos == 3 or pos == 4:
+		elif pos > 1 and pos <= 4:
 			return [-1, -2]
 		else:
 			return []
