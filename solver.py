@@ -4,12 +4,13 @@ class Solver:
 	WIN = 1
 	LOSS = -1
 	OTHER = 0
+	solved = False
 	known_states = {}
 	@staticmethod
 	def solve():
 		root = GameTree(ExampleGame.initial_position)
 		queue = deque([root])
-		while len(queue) > 0:
+		while len(queue) > 0 and Solver.solved == False:
 			node = queue.popleft()
 			moves = ExampleGame.gen_moves(node.data)
 			next_states = []
@@ -42,10 +43,14 @@ class Solver:
 					if Solver.known_states[c.data] == Solver.LOSS:
 						all_children_win = False
 						Solver.known_states[node.data] = Solver.WIN
+						if node.data == ExampleGame.initial_position:
+							Solver.solved = True
 				else:
 					all_children_win = False
 			if all_children_win:
 				Solver.known_states[node.data] = Solver.LOSS
+				if node.data == ExampleGame.initial_position:
+							Solver.solved = True
 		if node.data != ExampleGame.initial_position:
 			Solver.record(node.parent)
 
